@@ -9,7 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-
 typedef NS_ENUM(NSInteger, KLParallaxViewState) {
     KLParallaxViewStateInitial,
     KLParallaxViewStatePick,
@@ -29,5 +28,11 @@ typedef NS_ENUM(NSInteger, MyStyle) {
 
 @interface KLParallaxView : UIView
 
+
+@end
+
+@interface UIView (KLParallaxView)
+
+@property (nonatomic) CGFloat parallaxIntensity;
 
 @end

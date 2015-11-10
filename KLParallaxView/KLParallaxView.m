@@ -7,6 +7,7 @@
 //
 
 #import "KLParallaxView.h"
+#import <objc/runtime.h>
 
 static CGFloat const kInitialParallaxOffset = 5.0;
 static CGFloat const kInitialZoomMultiplier = 0.02;
@@ -27,12 +28,19 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 @implementation KLParallaxView
 
-@synthesize cornerRadius = _cornerRadius;
+- (instancetype)init
+{
+    return [self initWithFrame:CGRectZero];
+}
 
 - (instancetype)initWithFrame:(CGRect)frame
 {
+    return [self initWithFrame:frame subviews:nil];
+}
+
+- (instancetype)initWithFrame:(CGRect)frame subviews:(NSArray *)subviews
+{
     if ((self = [super initWithFrame:frame])) {
-        _cornerRadius = self.layer.cornerRadius;
         _contentView = [UIView new];
         _glowEffect = [UIImageView new];
         _parallaxType = KLParallaxViewTypeTag;
@@ -79,7 +87,6 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)setCornerRadius:(CGFloat)cornerRadius
 {
-    _cornerRadius = cornerRadius;
     self.layer.cornerRadius = cornerRadius;
     self.contentView.layer.cornerRadius = cornerRadius;
 }
@@ -101,7 +108,80 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)animateForGivenState:(KLParallaxViewState)state
 {
+    switch (state) {
+        case KLParallaxViewStatePick:
+            [self animatePick];
+            break;
 
+        case KLParallaxViewStatePutDown:
+            [self animatePutDown];
+            break;
+
+        case KLParallaxViewStateInitial:
+            break;
+
+        default:
+            break;
+    }
+}
+
+- (void)animatePick
+{
+    [self.layer addAnimation:<#(CAAnimation *)#> forKey:<#(NSString *)#>]
+}
+
+- (void)animatePutDown
+{
+
+}
+
+- (CAAnimationGroup *)pickAnimation
+{
+    return [self groupAnimationWithShadowOffset:CGSizeMake(0.0, 30.0)
+                                   shadowRadius:20.0
+                                       duration:0.02];
+
+}
+
+- (CAAnimationGroup *)putDownAnimation
+{
+    return [self groupAnimationWithShadowOffset:<#(CGSize)#> shadowRadius:<#(CGFloat)#> duration:<#(NSTimeInterval)#>]
+}
+
+- (CAAnimationGroup *)groupAnimationWithShadowOffset:(CGSize)shadowOffset
+                                        shadowRadius:(CGFloat)shadowRadius
+                                            duration:(NSTimeInterval)duration
+{
+    CABasicAnimation *offsetAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOffset"];
+    offsetAnimation.toValue = [NSValue valueWithCGSize:shadowOffset];
+
+    CABasicAnimation *radiusAnimation = [CABasicAnimation animationWithKeyPath:@"shadowRadius"];
+    radiusAnimation.toValue = [NSNumber numberWithFloat:shadowRadius];
+
+    CAAnimationGroup *animationGroup = [CAAnimationGroup new];
+    animationGroup.fillMode = kCAFillModeForwards;
+    animationGroup.removedOnCompletion = false;
+    animationGroup.duration = duration;
+    animationGroup.animations = @[ offsetAnimation, radiusAnimation ];
+
+    return animationGroup;
+}
+
+@end
+
+#pragma mark - UIView+KLParallaxView category
+
+@implementation UIView (KLParallaxView)
+
+- (void)setParallaxIntensity:(CGFloat)parallaxIntensity
+{
+    objc_setAssociatedObject(self, @selector(parallaxIntensity), [NSNumber numberWithFloat:parallaxIntensity], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (CGFloat)parallaxIntensity
+{
+    NSNumber *number = objc_getAssociatedObject(self, @selector(parallaxIntensity));
+    return [number floatValue];
 }
 
 
