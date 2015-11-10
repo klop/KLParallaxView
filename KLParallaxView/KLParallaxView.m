@@ -53,7 +53,8 @@ static NSString *const kGlowImageName = @"gloweffect";
 
         UIBezierPath *path = [UIBezierPath new];
         [path moveToPoint:CGPointMake(4, CGRectGetHeight(self.bounds))];
-        [path addLineToPoint:CGPointMake(CGRectGetWidth(self.bounds) - 4, CGRectGetWidth(self.bounds))];
+        [path addLineToPoint:CGPointMake(CGRectGetWidth(self.bounds) - 4,
+                                         CGRectGetWidth(self.bounds))];
         [path addLineToPoint:CGPointMake(CGRectGetWidth(self.bounds) - 4, 20)];
         [path addLineToPoint:CGPointMake(4, 20)];
         [path closePath];
@@ -104,7 +105,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     _parallaxState = parallaxState;
 }
 
-#pragma mark
+#pragma mark - State handling
 
 - (void)animateForGivenState:(KLParallaxViewState)state
 {
@@ -125,19 +126,23 @@ static NSString *const kGlowImageName = @"gloweffect";
     }
 }
 
+#pragma mark - Pick/put animations
+
 - (void)animatePick
 {
-    [self.layer addAnimation:[self pickAnimation] forKey:nil];
+    [self.layer addAnimation:[self createShadow] forKey:nil];
     [self makeZoomInEffect];
 }
 
 - (void)animatePutDown
 {
-    [self.layer addAnimation:[self putDownAnimation] forKey:nil];
+    [self.layer addAnimation:[self removeShadow] forKey:nil];
     [self makeZoomOutEffect];
 }
 
-- (CAAnimationGroup *)pickAnimation
+#pragma mark - Shadow animations
+
+- (CAAnimationGroup *)createShadow
 {
     return [self groupAnimationWithShadowOffset:CGSizeMake(0.0, 30.0)
                                    shadowRadius:20.0
@@ -145,7 +150,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 }
 
-- (CAAnimationGroup *)putDownAnimation
+- (CAAnimationGroup *)removeShadow
 {
     return [self groupAnimationWithShadowOffset:CGSizeMake(0.0, 0.0)
                                    shadowRadius:kInitialShadowRadius
@@ -171,15 +176,19 @@ static NSString *const kGlowImageName = @"gloweffect";
     return animationGroup;
 }
 
+#pragma mark - Zoom effect
+
 - (void)makeZoomInEffect
 {
     for (UIView *subview in self.contentView.subviews) {
         CGFloat widthZoom = [self widthZoomForView:subview];
         CGFloat heightZoom = [self heightZoomForView:subview];
-        subview.center = CGPointMake(subview.center.x - widthZoom, subview.center.y - heightZoom);
+        subview.center = CGPointMake(subview.center.x - widthZoom,
+                                     subview.center.y - heightZoom);
 
         CGRect frame = subview.frame;
-        frame.size = CGSizeMake(frame.size.width + widthZoom * 2, frame.size.height + heightZoom * 2);
+        frame.size = CGSizeMake(frame.size.width + widthZoom * 2,
+                                frame.size.height + heightZoom * 2);
         subview.frame = frame;
     }
 }
@@ -190,10 +199,12 @@ static NSString *const kGlowImageName = @"gloweffect";
         for (UIView *subview in self.contentView.subviews) {
             CGFloat widthZoom = [self widthZoomForView:subview];
             CGFloat heightZoom = [self heightZoomForView:subview];
-            subview.center = CGPointMake(subview.center.x + widthZoom, subview.center.y + heightZoom);
+            subview.center = CGPointMake(subview.center.x + widthZoom,
+                                         subview.center.y + heightZoom);
 
             CGRect frame = subview.frame;
-            frame.size = CGSizeMake(frame.size.width - widthZoom * 2, frame.size.height - heightZoom * 2);
+            frame.size = CGSizeMake(frame.size.width - widthZoom * 2,
+                                    frame.size.height - heightZoom * 2);
         }
     }];
 }
@@ -219,26 +230,53 @@ static NSString *const kGlowImageName = @"gloweffect";
     transform = CATransform3DRotate(transform, xAngle, 0, -(0.5 - offsetY), 0);
     self.layer.transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
 
-    [self parallaxSubviewsForOffset:CGSizeMake(offsetX, offsetY)];
+    [self parallaxSubviewsForOffset:CGPointMake(offsetX, offsetY)];
 }
 
-- (void)parallaxSubviewsForOffset:(CGSize)offset
+- (void)parallaxSubviewsForOffset:(CGPoint)offset
 {
-
+    CGFloat parallaxOffset;
+    for (UIView *subview in self.contentView.subviews) {
+        parallaxOffset = [self parallaxOffsetForView:subview];
+        CGFloat xParallaxOffsetAndSuperviewOffset = offset.x * parallaxOffset;
+        CGFloat yParallaxOffsetAndSuperviewOffset = offset.y * parallaxOffset;
+        subview.layer.transform = CATransform3DMakeTranslation(xParallaxOffsetAndSuperviewOffset,
+                                                               yParallaxOffsetAndSuperviewOffset,
+                                                               0);
+    }
 }
 
-#pragma mark - Touch handling
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+- (CGFloat)parallaxOffsetForView:(UIView *)view
 {
-    [super touchesMoved:touches withEvent:event];
+    switch (self.parallaxType) {
+        case KLParallaxViewTypeHierachy: {
+            if (view.superview.subviews.count) {
+                CGFloat index = [view.superview.subviews indexOfObject:view];
+                return index * kInitialMultiplierOfIndexHieracyToParallaxOffset;
+            } else {
+                return 5.0;
+            }
+            break;
+        }
 
-    self.parallaxState = KLParallaxViewStatePick;
+        case KLParallaxViewTypeTag:
+            return (CGFloat)view.tag * 2.0;
+            break;
+
+        default:
+            return 0.0;
+            break;
+    }
 }
 
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+- (void)removeParallaxEffect
 {
-
+    [UIView animateWithDuration:0.5 animations:^{
+        self.layer.transform = CATransform3DIdentity;
+        for (UIView *subview in self.contentView.subviews) {
+            subview.layer.transform = CATransform3DIdentity;
+        }
+    }];
 }
 
 #pragma mark - Zoom calculations
@@ -253,6 +291,22 @@ static NSString *const kGlowImageName = @"gloweffect";
     return view.bounds.size.width * kInitialZoomMultiplier;
 }
 
+#pragma mark - Touch handling
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesMoved:touches withEvent:event];
+    self.parallaxState = KLParallaxViewStatePick;
+    [self parallaxEffectFromTouch:[touches anyObject]];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesEnded:touches withEvent:event];
+    self.parallaxState = KLParallaxViewStatePutDown;
+    [self removeParallaxEffect];
+}
+
 @end
 
 #pragma mark - UIView+KLParallaxView category
@@ -261,7 +315,9 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)setParallaxIntensity:(CGFloat)parallaxIntensity
 {
-    objc_setAssociatedObject(self, @selector(parallaxIntensity), [NSNumber numberWithFloat:parallaxIntensity], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @selector(parallaxIntensity),
+                             [NSNumber numberWithFloat:parallaxIntensity],
+                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 - (CGFloat)parallaxIntensity
@@ -269,7 +325,9 @@ static NSString *const kGlowImageName = @"gloweffect";
     NSNumber *number = objc_getAssociatedObject(self, @selector(parallaxIntensity));
     if (!number) {
         number = [NSNumber numberWithFloat:0];
-        objc_setAssociatedObject(self, @selector(parallaxIntensity), number, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        objc_setAssociatedObject(self, @selector(parallaxIntensity),
+                                 number,
+                                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return [number floatValue];
 }
