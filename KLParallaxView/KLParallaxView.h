@@ -23,6 +23,14 @@ typedef NS_ENUM(NSInteger, KLParallaxViewType) {
 
 @interface KLParallaxView : UIView
 
+/**
+ *  The designated initializer for KLParallaxView.
+ *
+ *  @param frame    <#frame description#>
+ *  @param subviews <#subviews description#>
+ *
+ *  @return <#return value description#>
+ */
 - (instancetype)initWithFrame:(CGRect)frame subviews:(NSArray *)subviews;
 
 @end

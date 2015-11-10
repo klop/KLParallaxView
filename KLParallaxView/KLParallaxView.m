@@ -43,7 +43,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     if ((self = [super initWithFrame:frame])) {
         _contentView = [UIView new];
         _glowEffect = [UIImageView new];
-        _parallaxType = KLParallaxViewTypeTag;
+        _parallaxType = KLParallaxViewTypeHierachy;
         _parallaxState = KLParallaxViewStateInitial;
 
         self.backgroundColor = [UIColor clearColor];
@@ -54,7 +54,7 @@ static NSString *const kGlowImageName = @"gloweffect";
         UIBezierPath *path = [UIBezierPath new];
         [path moveToPoint:CGPointMake(4, CGRectGetHeight(self.bounds))];
         [path addLineToPoint:CGPointMake(CGRectGetWidth(self.bounds) - 4,
-                                         CGRectGetWidth(self.bounds))];
+                                         CGRectGetHeight(self.bounds))];
         [path addLineToPoint:CGPointMake(CGRectGetWidth(self.bounds) - 4, 20)];
         [path addLineToPoint:CGPointMake(4, 20)];
         [path closePath];
@@ -63,15 +63,15 @@ static NSString *const kGlowImageName = @"gloweffect";
         _contentView.frame = self.bounds;
         _contentView.layer.masksToBounds = YES;
 
-        for (UIView *subview in self.subviews) {
-            subview.translatesAutoresizingMaskIntoConstraints = YES;
-            [subview removeFromSuperview];
-            // need to make a cgrect here then set it to frame.
+        for (UIView *subview in subviews) {
+            subview.frame = self.bounds;
             CGRect frame = subview.frame;
-            frame.origin.x = -kInitialParallaxOffset;
-            frame.origin.y = -kInitialParallaxOffset;
+//            frame.origin.x = -kInitialParallaxOffset;
+//            frame.origin.y = -kInitialParallaxOffset;
             frame.size.width += kInitialParallaxOffset * 2.0;
             frame.size.height += kInitialParallaxOffset * 2.0;
+            subview.translatesAutoresizingMaskIntoConstraints = YES;
+            subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             [_contentView addSubview:subview];
         }
         UIImage *glow = [UIImage imageNamed:kGlowImageName];
@@ -80,6 +80,7 @@ static NSString *const kGlowImageName = @"gloweffect";
             _glowEffect.alpha = 0.0;
             [_contentView addSubview:_glowEffect];
         }
+        [self addSubview:_contentView];
     }
     return self;
 }
