@@ -127,12 +127,14 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)animatePick
 {
-    [self.layer addAnimation:<#(CAAnimation *)#> forKey:<#(NSString *)#>]
+    [self.layer addAnimation:[self pickAnimation] forKey:nil];
+    [self makeZoomInEffect];
 }
 
 - (void)animatePutDown
 {
-
+    [self.layer addAnimation:[self putDownAnimation] forKey:nil];
+    [self makeZoomOutEffect];
 }
 
 - (CAAnimationGroup *)pickAnimation
@@ -145,7 +147,9 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (CAAnimationGroup *)putDownAnimation
 {
-    return [self groupAnimationWithShadowOffset:<#(CGSize)#> shadowRadius:<#(CGFloat)#> duration:<#(NSTimeInterval)#>]
+    return [self groupAnimationWithShadowOffset:CGSizeMake(0.0, 0.0)
+                                   shadowRadius:kInitialShadowRadius
+                                       duration:0.4];
 }
 
 - (CAAnimationGroup *)groupAnimationWithShadowOffset:(CGSize)shadowOffset
@@ -165,6 +169,45 @@ static NSString *const kGlowImageName = @"gloweffect";
     animationGroup.animations = @[ offsetAnimation, radiusAnimation ];
 
     return animationGroup;
+}
+
+- (void)makeZoomInEffect
+{
+    for (UIView *subview in self.contentView.subviews) {
+        CGFloat widthZoom = [self widthZoomForView:subview];
+        CGFloat heightZoom = [self heightZoomForView:subview];
+        subview.center = CGPointMake(subview.center.x - widthZoom, subview.center.y - heightZoom);
+
+        CGRect frame = subview.frame;
+        frame.size = CGSizeMake(frame.size.width + widthZoom * 2, frame.size.height + heightZoom * 2);
+        subview.frame = frame;
+    }
+}
+
+- (void)makeZoomOutEffect
+{
+    [UIView animateWithDuration:0.3 animations:^{
+        for (UIView *subview in self.contentView.subviews) {
+            CGFloat widthZoom = [self widthZoomForView:subview];
+            CGFloat heightZoom = [self heightZoomForView:subview];
+            subview.center = CGPointMake(subview.center.x + widthZoom, subview.center.y + heightZoom);
+
+            CGRect frame = subview.frame;
+            frame.size = CGSizeMake(frame.size.width - widthZoom * 2, frame.size.height - heightZoom * 2);
+        }
+    }];
+}
+
+#pragma mark - Zoom calculations
+
+- (CGFloat)heightZoomForView:(UIView *)view
+{
+    return view.bounds.size.height * kInitialZoomMultiplier;
+}
+
+- (CGFloat)widthZoomForView:(UIView *)view
+{
+    return view.bounds.size.width * kInitialZoomMultiplier;
 }
 
 @end
