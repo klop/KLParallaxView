@@ -12,7 +12,7 @@
 static CGFloat const kInitialParallaxOffset = 5.0;
 static CGFloat const kInitialZoomMultiplier = 0.02;
 static CGFloat const kInitialParallaxOffsetDuringPick = 15.0;
-static CGFloat const kInitialMultiplierOfIndexHieracyToParallaxOffset = 7.0;
+static CGFloat const kInitialMultiplierOfIndexHieracyToParallaxOffset = 10.0;
 static CGFloat const kInitialShadowRadius = 10.0;
 static NSString *const kGlowImageName = @"gloweffect";
 
@@ -66,12 +66,12 @@ static NSString *const kGlowImageName = @"gloweffect";
         for (UIView *subview in subviews) {
             subview.frame = self.bounds;
             CGRect frame = subview.frame;
-//            frame.origin.x = -kInitialParallaxOffset;
-//            frame.origin.y = -kInitialParallaxOffset;
+            frame.origin.x = -kInitialParallaxOffset;
+            frame.origin.y = -kInitialParallaxOffset;
             frame.size.width += kInitialParallaxOffset * 2.0;
             frame.size.height += kInitialParallaxOffset * 2.0;
-            subview.translatesAutoresizingMaskIntoConstraints = YES;
-            subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+//            subview.translatesAutoresizingMaskIntoConstraints = YES;
+//            subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             [_contentView addSubview:subview];
         }
         UIImage *glow = [UIImage imageNamed:kGlowImageName];
@@ -181,17 +181,20 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)makeZoomInEffect
 {
-    for (UIView *subview in self.contentView.subviews) {
-        CGFloat widthZoom = [self widthZoomForView:subview];
-        CGFloat heightZoom = [self heightZoomForView:subview];
-        subview.center = CGPointMake(subview.center.x - widthZoom,
-                                     subview.center.y - heightZoom);
+    [UIView animateWithDuration:0.1 animations:^{
+        for (UIView *subview in self.contentView.subviews) {
+            CGFloat widthZoom = [self widthZoomForView:subview];
+            CGFloat heightZoom = [self heightZoomForView:subview];
+            subview.center = CGPointMake(subview.center.x - widthZoom,
+                                         subview.center.y - heightZoom);
 
-        CGRect frame = subview.frame;
-        frame.size = CGSizeMake(frame.size.width + widthZoom * 2,
-                                frame.size.height + heightZoom * 2);
-        subview.frame = frame;
-    }
+            CGRect frame = subview.frame;
+            frame.size = CGSizeMake(frame.size.width + widthZoom * 2,
+                                    frame.size.height + heightZoom * 2);
+            subview.frame = frame;
+        }
+        
+    }];
 }
 
 - (void)makeZoomOutEffect
@@ -206,8 +209,22 @@ static NSString *const kGlowImageName = @"gloweffect";
             CGRect frame = subview.frame;
             frame.size = CGSizeMake(frame.size.width - widthZoom * 2,
                                     frame.size.height - heightZoom * 2);
+            subview.frame = frame;
         }
     }];
+}
+
+
+#pragma mark - Zoom calculations
+
+- (CGFloat)heightZoomForView:(UIView *)view
+{
+    return view.bounds.size.height * kInitialZoomMultiplier;
+}
+
+- (CGFloat)widthZoomForView:(UIView *)view
+{
+    return view.bounds.size.width * kInitialZoomMultiplier;
 }
 
 #pragma mark - Parallax effect
@@ -280,18 +297,6 @@ static NSString *const kGlowImageName = @"gloweffect";
     }];
 }
 
-#pragma mark - Zoom calculations
-
-- (CGFloat)heightZoomForView:(UIView *)view
-{
-    return view.bounds.size.height * kInitialZoomMultiplier;
-}
-
-- (CGFloat)widthZoomForView:(UIView *)view
-{
-    return view.bounds.size.width * kInitialZoomMultiplier;
-}
-
 #pragma mark - Touch handling
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -306,6 +311,11 @@ static NSString *const kGlowImageName = @"gloweffect";
     [super touchesEnded:touches withEvent:event];
     self.parallaxState = KLParallaxViewStatePutDown;
     [self removeParallaxEffect];
+}
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+
 }
 
 @end
