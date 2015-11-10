@@ -21,13 +21,9 @@ typedef NS_ENUM(NSInteger, KLParallaxViewType) {
     KlParallaxViewTypeCustom
 };
 
-typedef NS_ENUM(NSInteger, MyStyle) {
-    MyStyleDefault,
-    MyStyleCustom
-};
-
 @interface KLParallaxView : UIView
 
+- (instancetype)initWithFrame:(CGRect)frame subviews:(NSArray *)subviews;
 
 @end
 
