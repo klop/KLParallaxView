@@ -164,7 +164,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
     CAAnimationGroup *animationGroup = [CAAnimationGroup new];
     animationGroup.fillMode = kCAFillModeForwards;
-    animationGroup.removedOnCompletion = false;
+    animationGroup.removedOnCompletion = NO;
     animationGroup.duration = duration;
     animationGroup.animations = @[ offsetAnimation, radiusAnimation ];
 
@@ -198,6 +198,49 @@ static NSString *const kGlowImageName = @"gloweffect";
     }];
 }
 
+#pragma mark - Parallax effect
+
+- (void)parallaxEffectFromTouch:(UITouch *)touch
+{
+    UIView *superview = self.superview;
+    CGPoint location = [touch locationInView:superview];
+
+    CGFloat offsetX = (0.5 - location.x / superview.bounds.size.width) * -1;
+    CGFloat offsetY = (0.5 - location.y / superview.bounds.size.height) * -1;
+
+    CATransform3D transform = CATransform3DMakeScale(1.1, 1.1, 1.1);
+    transform.m34 = 1.0/-500;
+
+    CGFloat radiansPerDegree = M_PI / 180.0;
+
+    CGFloat xAngle = (offsetX * kInitialParallaxOffsetDuringPick) * radiansPerDegree;
+    CGFloat yAngle = (offsetY * kInitialParallaxOffsetDuringPick) * radiansPerDegree;
+
+    transform = CATransform3DRotate(transform, xAngle, 0, -(0.5 - offsetY), 0);
+    self.layer.transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
+
+    [self parallaxSubviewsForOffset:CGSizeMake(offsetX, offsetY)];
+}
+
+- (void)parallaxSubviewsForOffset:(CGSize)offset
+{
+
+}
+
+#pragma mark - Touch handling
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    [super touchesMoved:touches withEvent:event];
+
+    self.parallaxState = KLParallaxViewStatePick;
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+
+}
+
 #pragma mark - Zoom calculations
 
 - (CGFloat)heightZoomForView:(UIView *)view
@@ -224,8 +267,11 @@ static NSString *const kGlowImageName = @"gloweffect";
 - (CGFloat)parallaxIntensity
 {
     NSNumber *number = objc_getAssociatedObject(self, @selector(parallaxIntensity));
+    if (!number) {
+        number = [NSNumber numberWithFloat:0];
+        objc_setAssociatedObject(self, @selector(parallaxIntensity), number, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
     return [number floatValue];
 }
-
 
 @end
