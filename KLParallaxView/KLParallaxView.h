@@ -9,16 +9,10 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger, KLParallaxViewState) {
-    KLParallaxViewStateInitial,
-    KLParallaxViewStatePick,
-    KLParallaxViewStatePutDown
-};
-
 typedef NS_ENUM(NSInteger, KLParallaxViewType) {
     KLParallaxViewTypeHierachy,
     KLParallaxViewTypeTag,
-    KlParallaxViewTypeCustom
+    KLParallaxViewTypeIntensityValue,
 };
 
 @interface KLParallaxView : UIView
@@ -32,6 +26,8 @@ typedef NS_ENUM(NSInteger, KLParallaxViewType) {
  *  @return <#return value description#>
  */
 - (instancetype)initWithFrame:(CGRect)frame subviews:(NSArray *)subviews;
+
+@property (nonatomic) KLParallaxViewType parallaxType;
 
 @end
 

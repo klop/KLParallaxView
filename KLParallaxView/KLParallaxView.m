@@ -18,7 +18,6 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 @interface KLParallaxView ()
 
-@property (nonatomic) KLParallaxViewType parallaxType;
 @property (nonatomic) CGFloat cornerRadius;
 @property (strong, nonatomic) UIView *contentView;
 @property (strong, nonatomic) UIImageView *glowEffect;
@@ -256,6 +255,10 @@ static NSString *const kGlowImageName = @"gloweffect";
 
         case KLParallaxViewTypeTag:
             return (CGFloat)view.tag * 2.0;
+            break;
+
+        case KLParallaxViewTypeIntensityValue:
+            return view.parallaxIntensity;
             break;
 
         default:
