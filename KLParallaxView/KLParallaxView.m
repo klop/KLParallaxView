@@ -96,36 +96,10 @@ static NSString *const kGlowImageName = @"gloweffect";
 {
     return self.contentView.layer.cornerRadius;
 }
-//
-//#pragma mark _parallaxState accessors
-//
-//- (void)setParallaxState:(KLParallaxViewState)parallaxState
-//{
-//    if (parallaxState != _parallaxState) [self animateForGivenState:parallaxState];
-//    _parallaxState = parallaxState;
-//}
 
 - (void)setZoomed:(BOOL)zoomed
 {
     if (_zoomed != zoomed) _zoomed = zoomed;
-}
-
-#pragma mark - State handling
-
-- (void)animateForGivenState:(KLParallaxViewState)state
-{
-    switch (state) {
-        case KLParallaxViewStatePick:
-            [self animatePick];
-            break;
-
-        case KLParallaxViewStatePutDown:
-            [self animatePutDown];
-            break;
-
-        default:
-            break;
-    }
 }
 
 #pragma mark - Pick/put animations
