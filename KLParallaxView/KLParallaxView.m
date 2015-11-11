@@ -315,7 +315,9 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-
+    [super touchesBegan:touches withEvent:event];
+    self.parallaxState = KLParallaxViewStatePick;
+    [self parallaxEffectFromTouch:[touches anyObject]];
 }
 
 @end
