@@ -18,11 +18,11 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 @interface KLParallaxView ()
 
-@property (nonatomic) KLParallaxViewState parallaxState;
 @property (nonatomic) KLParallaxViewType parallaxType;
 @property (nonatomic) CGFloat cornerRadius;
 @property (strong, nonatomic) UIView *contentView;
 @property (strong, nonatomic) UIImageView *glowEffect;
+@property (nonatomic, getter=isZoomed) BOOL zoomed;
 
 @end
 
@@ -43,8 +43,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     if ((self = [super initWithFrame:frame])) {
         _contentView = [UIView new];
         _glowEffect = [UIImageView new];
-        _parallaxType = KLParallaxViewTypeHierachy;
-        _parallaxState = KLParallaxViewStateInitial;
+        _zoomed = NO;
 
         self.backgroundColor = [UIColor clearColor];
         self.layer.shadowRadius = kInitialShadowRadius;
@@ -98,33 +97,9 @@ static NSString *const kGlowImageName = @"gloweffect";
     return self.contentView.layer.cornerRadius;
 }
 
-#pragma mark _parallaxState accessors
-
-- (void)setParallaxState:(KLParallaxViewState)parallaxState
+- (void)setZoomed:(BOOL)zoomed
 {
-    if (parallaxState != _parallaxState) [self animateForGivenState:parallaxState];
-    _parallaxState = parallaxState;
-}
-
-#pragma mark - State handling
-
-- (void)animateForGivenState:(KLParallaxViewState)state
-{
-    switch (state) {
-        case KLParallaxViewStatePick:
-            [self animatePick];
-            break;
-
-        case KLParallaxViewStatePutDown:
-            [self animatePutDown];
-            break;
-
-        case KLParallaxViewStateInitial:
-            break;
-
-        default:
-            break;
-    }
+    if (_zoomed != zoomed) _zoomed = zoomed;
 }
 
 #pragma mark - Pick/put animations
@@ -132,13 +107,15 @@ static NSString *const kGlowImageName = @"gloweffect";
 - (void)animatePick
 {
     [self.layer addAnimation:[self createShadow] forKey:nil];
-    [self makeZoomInEffect];
+    if (!self.isZoomed) [self makeZoomInEffect];
+    self.zoomed = YES;
 }
 
 - (void)animatePutDown
 {
     [self.layer addAnimation:[self removeShadow] forKey:nil];
-    [self makeZoomOutEffect];
+    if (self.isZoomed) [self makeZoomOutEffect];
+    self.zoomed = NO;
 }
 
 #pragma mark - Shadow animations
@@ -302,21 +279,21 @@ static NSString *const kGlowImageName = @"gloweffect";
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [super touchesMoved:touches withEvent:event];
-    self.parallaxState = KLParallaxViewStatePick;
+    [self animatePick];
     [self parallaxEffectFromTouch:[touches anyObject]];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [super touchesEnded:touches withEvent:event];
-    self.parallaxState = KLParallaxViewStatePutDown;
+    [self animatePutDown];
     [self removeParallaxEffect];
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [super touchesBegan:touches withEvent:event];
-    self.parallaxState = KLParallaxViewStatePick;
+    [self animatePick];
     [self parallaxEffectFromTouch:[touches anyObject]];
 }
 
