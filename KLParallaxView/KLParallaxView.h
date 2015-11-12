@@ -28,6 +28,8 @@ typedef NS_ENUM(NSInteger, KLParallaxViewType) {
 - (instancetype)initWithFrame:(CGRect)frame subviews:(NSArray *)subviews;
 
 @property (nonatomic) KLParallaxViewType parallaxType;
+@property (nonatomic) CGFloat cornerRadius;
+@property (nonatomic) CGFloat parallaxMultiplier;
 
 @end
 
