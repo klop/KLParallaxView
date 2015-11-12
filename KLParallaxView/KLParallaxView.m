@@ -68,8 +68,8 @@ static NSString *const kGlowImageName = @"gloweffect";
             frame.origin.y = -kInitialParallaxOffset * 2.5;
             frame.size.width += kInitialParallaxOffset * 5.0;
             frame.size.height += kInitialParallaxOffset * 5.0;
-//            subview.translatesAutoresizingMaskIntoConstraints = YES;
-//            subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            //            subview.translatesAutoresizingMaskIntoConstraints = YES;
+            //            subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             subview.frame = frame;
             [_contentView addSubview:subview];
         }
@@ -108,52 +108,60 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)animatePick
 {
-//    [self.layer addAnimation:[self createShadow] forKey:nil];
-//    if (!self.isZoomed) [self makeZoomInEffect];
+    [self createShadow];
+    //    if (!self.isZoomed) [self makeZoomInEffect];
     self.zoomed = YES;
 }
 
 - (void)animatePutDown
 {
-//    [self.layer addAnimation:[self removeShadow] forKey:nil];
-//    if (self.isZoomed) [self makeZoomOutEffect];
+    [self removeShadow];
+    //    if (self.isZoomed) [self makeZoomOutEffect];
     self.zoomed = NO;
 }
 
 #pragma mark - Shadow animations
 
-- (CAAnimationGroup *)createShadow
+- (void)createShadow
 {
-    return [self groupAnimationWithShadowOffset:CGSizeMake(0.0, 30.0)
-                                   shadowRadius:20.0
-                                       duration:0.1];
-
+    CGSize shadowOffset = CGSizeMake(0.0, 30.0);
+    CGFloat shadowRadius = 20.0;
+    [self addGroupAnimationWithShadowOffset:shadowOffset
+                               shadowRadius:shadowRadius
+                                   duration:0.1
+                                      layer:self.layer];
 }
 
-- (CAAnimationGroup *)removeShadow
+- (void)removeShadow
 {
-    return [self groupAnimationWithShadowOffset:CGSizeMake(0.0, 0.0)
-                                   shadowRadius:kInitialShadowRadius
-                                       duration:0.3];
+    CGSize shadowOffset = CGSizeMake(0.0, 0.0);
+    [self addGroupAnimationWithShadowOffset:shadowOffset
+                               shadowRadius:kInitialShadowRadius
+                                   duration:0.3
+                                      layer:self.layer];
 }
 
-- (CAAnimationGroup *)groupAnimationWithShadowOffset:(CGSize)shadowOffset
-                                        shadowRadius:(CGFloat)shadowRadius
-                                            duration:(NSTimeInterval)duration
+- (void)addGroupAnimationWithShadowOffset:(CGSize)shadowOffset
+                             shadowRadius:(CGFloat)shadowRadius
+                                 duration:(NSTimeInterval)duration
+                                    layer:(CALayer *)layer
 {
+    CALayer *presentationLayer = (CALayer *)layer.presentationLayer;
     CABasicAnimation *offsetAnimation = [CABasicAnimation animationWithKeyPath:@"shadowOffset"];
+    offsetAnimation.fromValue = [NSValue valueWithCGSize:presentationLayer.shadowOffset];
     offsetAnimation.toValue = [NSValue valueWithCGSize:shadowOffset];
 
     CABasicAnimation *radiusAnimation = [CABasicAnimation animationWithKeyPath:@"shadowRadius"];
+    radiusAnimation.fromValue = [NSNumber numberWithFloat:presentationLayer.shadowRadius];
     radiusAnimation.toValue = [NSNumber numberWithFloat:shadowRadius];
 
     CAAnimationGroup *animationGroup = [CAAnimationGroup new];
-    animationGroup.fillMode = kCAFillModeForwards;
-    animationGroup.removedOnCompletion = NO;
     animationGroup.duration = duration;
     animationGroup.animations = @[ offsetAnimation, radiusAnimation ];
 
-    return animationGroup;
+    [layer addAnimation:animationGroup forKey:@"shadowKey"];
+    layer.shadowRadius = shadowRadius;
+    layer.shadowOffset = shadowOffset;
 }
 
 #pragma mark - Zoom effect
@@ -172,7 +180,7 @@ static NSString *const kGlowImageName = @"gloweffect";
                                     frame.size.height + heightZoom * 2);
             subview.frame = frame;
         }
-        
+
     }];
 }
 
@@ -242,9 +250,9 @@ static NSString *const kGlowImageName = @"gloweffect";
     self.layer.transform = transform;
 
 
-//    self.layer.transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
+    //    self.layer.transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
 
-//    [self parallaxSubviewsForOffset:CGPointMake(offsetX, offsetY)];
+    //    [self parallaxSubviewsForOffset:CGPointMake(offsetX, offsetY)];
 }
 
 - (void)parallaxSubviewsForOffset:(CGPoint)offset
@@ -297,16 +305,16 @@ static NSString *const kGlowImageName = @"gloweffect";
     [self.layer addAnimation:animation forKey:@"transform"];
     self.layer.transform = CATransform3DIdentity;
 
-//    [UIView animateWithDuration:0.5 animations:^{
-//        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
-//        animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-//        animation.duration = 1.0;
-//        [self.layer addAnimation:animation forKey:nil];
-////        self.layer.transform = CATransform3DIdentity;
-//        for (UIView *subview in self.contentView.subviews) {
-//            subview.layer.transform = CATransform3DIdentity;
-//        }
-//    }];
+    //    [UIView animateWithDuration:0.5 animations:^{
+    //        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
+    //        animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
+    //        animation.duration = 1.0;
+    //        [self.layer addAnimation:animation forKey:nil];
+    ////        self.layer.transform = CATransform3DIdentity;
+    //        for (UIView *subview in self.contentView.subviews) {
+    //            subview.layer.transform = CATransform3DIdentity;
+    //        }
+    //    }];
 }
 
 #pragma mark - Touch handling
