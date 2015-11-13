@@ -31,9 +31,10 @@ typedef NS_ENUM(NSInteger, KLParallaxViewType){
 @property (nonatomic) KLParallaxViewType parallaxType;
 @property (nonatomic) CGFloat cornerRadius;
 @property (nonatomic) CGFloat parallaxMultiplier;
+@property (nonatomic) CGFloat zoomMultiplier;
 @property (nonatomic) CGFloat initialShadowRadius;
 @property (nonatomic) CGFloat finalShadowRadius;
-@property (nonatomic) CGFloat zoomMultiplier;
+@property (nonatomic) CGFloat shadowOpacity;
 
 @end
 

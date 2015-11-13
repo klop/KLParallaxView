@@ -12,7 +12,8 @@
 static CGFloat const kInitialParallaxOffset = 5.0;
 static CGFloat const kInitialZoomMultiplier = 0.02;
 static CGFloat const kInitialParallaxOffsetDuringPick = 15.0;
-static CGFloat const kInitialParallaxMultiplier = 1.0;
+static CGFloat const kInitialParallaxMultiplier = 2.0;
+static CGFloat const kInitialShadowOpacity = 0.8;
 static CGFloat const kInitialShadowRadius = 10.0;
 static CGFloat const kFinalShadowRadius = 20.0;
 static NSString *const kGlowImageName = @"gloweffect";
@@ -46,10 +47,11 @@ static NSString *const kGlowImageName = @"gloweffect";
         _parallaxMultiplier = kInitialParallaxMultiplier;
         _initialShadowRadius = kInitialShadowRadius;
         _finalShadowRadius = kFinalShadowRadius;
+        _zoomMultiplier = kInitialZoomMultiplier;
 
         self.backgroundColor = [UIColor clearColor];
         self.layer.shadowRadius = _initialShadowRadius;
-        self.layer.shadowOpacity = 0.8;
+        self.layer.shadowOpacity = kInitialShadowOpacity;
         self.layer.shadowColor = [UIColor blackColor].CGColor;
 
         UIBezierPath *path = [UIBezierPath new];
@@ -67,10 +69,10 @@ static NSString *const kGlowImageName = @"gloweffect";
         for (UIView *subview in subviews) {
             subview.frame = self.bounds;
             CGRect frame = subview.frame;
-            frame.origin.x = -kInitialParallaxOffset * 2.5;
-            frame.origin.y = -kInitialParallaxOffset * 2.5;
-            frame.size.width += kInitialParallaxOffset * 5.0;
-            frame.size.height += kInitialParallaxOffset * 5.0;
+            frame.origin.x = -kInitialParallaxOffset * 3.0;
+            frame.origin.y = -kInitialParallaxOffset * 3.0;
+            frame.size.width += kInitialParallaxOffset * 6.0;
+            frame.size.height += kInitialParallaxOffset * 6.0;
             subview.translatesAutoresizingMaskIntoConstraints = YES;
             subview.frame = frame;
             [_contentView addSubview:subview];
@@ -92,7 +94,6 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)setCornerRadius:(CGFloat)cornerRadius
 {
-    self.layer.cornerRadius = cornerRadius;
     self.contentView.layer.cornerRadius = cornerRadius;
 }
 
@@ -100,6 +101,20 @@ static NSString *const kGlowImageName = @"gloweffect";
 {
     return self.contentView.layer.cornerRadius;
 }
+
+#pragma mark - _shadowOpacity accessors
+
+- (void)setShadowOpacity:(CGFloat)shadowOpacity
+{
+    self.layer.shadowOpacity = shadowOpacity;
+}
+
+- (CGFloat)shadowOpacity
+{
+    return self.layer.shadowOpacity;
+}
+
+#pragma mark - _zoomed accessors
 
 - (void)setZoomed:(BOOL)zoomed
 {
@@ -127,9 +142,8 @@ static NSString *const kGlowImageName = @"gloweffect";
 - (void)createShadow
 {
     CGSize shadowOffset = CGSizeMake(0.0, 30.0);
-    CGFloat shadowRadius = 20.0;
     [self addGroupAnimationWithShadowOffset:shadowOffset
-                               shadowRadius:shadowRadius
+                               shadowRadius:self.finalShadowRadius
                                    duration:0.1
                                       layer:self.layer];
 }
@@ -138,7 +152,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 {
     CGSize shadowOffset = CGSizeZero;
     [self addGroupAnimationWithShadowOffset:shadowOffset
-                               shadowRadius:kInitialShadowRadius
+                               shadowRadius:self.initialShadowRadius
                                    duration:0.3
                                       layer:self.layer];
 }
@@ -174,9 +188,10 @@ static NSString *const kGlowImageName = @"gloweffect";
         for (UIView *subview in self.contentView.subviews) {
             CGFloat widthZoom = [self widthZoomForView:subview];
             CGFloat heightZoom = [self heightZoomForView:subview];
-            subview.center = CGPointMake(subview.center.x - widthZoom,
-                                         subview.center.y - heightZoom);
             CGRect frame = subview.frame;
+            frame.origin = CGPointMake(subview.frame.origin.x - widthZoom,
+                                         subview.frame.origin.y - heightZoom);
+
             frame.size = CGSizeMake(frame.size.width + widthZoom * 2,
                                     frame.size.height + heightZoom * 2);
             subview.frame = frame;
@@ -191,10 +206,10 @@ static NSString *const kGlowImageName = @"gloweffect";
         for (UIView *subview in self.contentView.subviews) {
             CGFloat widthZoom = [self widthZoomForView:subview];
             CGFloat heightZoom = [self heightZoomForView:subview];
-            subview.center = CGPointMake(subview.center.x + widthZoom,
-                                         subview.center.y + heightZoom);
-
             CGRect frame = subview.frame;
+            frame.origin = CGPointMake(subview.frame.origin.x + widthZoom,
+                                         subview.frame.origin.y + heightZoom);
+
             frame.size = CGSizeMake(frame.size.width - widthZoom * 2,
                                     frame.size.height - heightZoom * 2);
             subview.frame = frame;
@@ -207,12 +222,12 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (CGFloat)heightZoomForView:(UIView *)view
 {
-    return view.bounds.size.height * kInitialZoomMultiplier;
+    return view.bounds.size.height * self.zoomMultiplier;
 }
 
 - (CGFloat)widthZoomForView:(UIView *)view
 {
-    return view.bounds.size.width * kInitialZoomMultiplier;
+    return view.bounds.size.width * self.zoomMultiplier;
 }
 
 #pragma mark - Parallax effect
@@ -281,7 +296,7 @@ static NSString *const kGlowImageName = @"gloweffect";
                 CGFloat index = [view.superview.subviews indexOfObject:view];
                 return index * self.parallaxMultiplier;
             } else {
-                return 5.0;
+                return 0.0;
             }
             break;
         }
