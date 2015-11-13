@@ -14,6 +14,7 @@ static CGFloat const kInitialZoomMultiplier = 0.02;
 static CGFloat const kInitialParallaxOffsetDuringPick = 15.0;
 static CGFloat const kInitialParallaxMultiplier = 10.0;
 static CGFloat const kInitialShadowRadius = 10.0;
+static CGFloat const kFinalShadowRadius = 20.0;
 static NSString *const kGlowImageName = @"gloweffect";
 
 @interface KLParallaxView ()
@@ -43,9 +44,11 @@ static NSString *const kGlowImageName = @"gloweffect";
         _glowEffect = [UIImageView new];
         _zoomed = NO;
         _parallaxMultiplier = kInitialParallaxMultiplier;
+        _initialShadowRadius = kInitialShadowRadius;
+        _finalShadowRadius = kFinalShadowRadius;
 
         self.backgroundColor = [UIColor clearColor];
-        self.layer.shadowRadius = kInitialShadowRadius;
+        self.layer.shadowRadius = _initialShadowRadius;
         self.layer.shadowOpacity = 0.6;
         self.layer.shadowColor = [UIColor blackColor].CGColor;
 
@@ -109,14 +112,14 @@ static NSString *const kGlowImageName = @"gloweffect";
 - (void)animatePick
 {
     [self createShadow];
-    //    if (!self.isZoomed) [self makeZoomInEffect];
+//    if (!self.isZoomed) [self makeZoomInEffect];
     self.zoomed = YES;
 }
 
 - (void)animatePutDown
 {
     [self removeShadow];
-    //    if (self.isZoomed) [self makeZoomOutEffect];
+//    if (self.isZoomed) [self makeZoomOutEffect];
     self.zoomed = NO;
 }
 
@@ -134,7 +137,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)removeShadow
 {
-    CGSize shadowOffset = CGSizeMake(0.0, 0.0);
+    CGSize shadowOffset = CGSizeZero;
     [self addGroupAnimationWithShadowOffset:shadowOffset
                                shadowRadius:kInitialShadowRadius
                                    duration:0.3
@@ -232,7 +235,6 @@ static NSString *const kGlowImageName = @"gloweffect";
     CGFloat xAngle = (offsetX * kInitialParallaxOffsetDuringPick) * radiansPerDegree;
     CGFloat yAngle = (offsetY * kInitialParallaxOffsetDuringPick) * radiansPerDegree;
 
-
     transform = CATransform3DRotate(transform, xAngle, 0, -(0.5 - offsetY), 0);
     transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
 
@@ -252,7 +254,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
     //    self.layer.transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
 
-    //    [self parallaxSubviewsForOffset:CGPointMake(offsetX, offsetY)];
+//        [self parallaxSubviewsForOffset:CGPointMake(offsetX, offsetY)];
 }
 
 - (void)parallaxSubviewsForOffset:(CGPoint)offset
@@ -274,7 +276,7 @@ static NSString *const kGlowImageName = @"gloweffect";
         case KLParallaxViewTypeHierachy: {
             if (view.superview.subviews.count) {
                 CGFloat index = [view.superview.subviews indexOfObject:view];
-                return index * kInitialParallaxMultiplier;
+                return index * self.parallaxMultiplier;
             } else {
                 return 5.0;
             }
@@ -282,11 +284,11 @@ static NSString *const kGlowImageName = @"gloweffect";
         }
 
         case KLParallaxViewTypeTag:
-            return (CGFloat)view.tag * kInitialParallaxMultiplier;
+            return (CGFloat)view.tag * self.parallaxMultiplier;
             break;
 
         case KLParallaxViewTypeIntensityValue:
-            return view.parallaxIntensity * kInitialParallaxMultiplier;
+            return view.parallaxIntensity * self.parallaxMultiplier;
             break;
 
         default:
@@ -305,16 +307,16 @@ static NSString *const kGlowImageName = @"gloweffect";
     [self.layer addAnimation:animation forKey:@"transform"];
     self.layer.transform = CATransform3DIdentity;
 
-    //    [UIView animateWithDuration:0.5 animations:^{
-    //        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
-    //        animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-    //        animation.duration = 1.0;
-    //        [self.layer addAnimation:animation forKey:nil];
-    ////        self.layer.transform = CATransform3DIdentity;
-    //        for (UIView *subview in self.contentView.subviews) {
-    //            subview.layer.transform = CATransform3DIdentity;
-    //        }
-    //    }];
+        [UIView animateWithDuration:0.5 animations:^{
+            CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
+            animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
+            animation.duration = 1.0;
+            [self.layer addAnimation:animation forKey:nil];
+    //        self.layer.transform = CATransform3DIdentity;
+            for (UIView *subview in self.contentView.subviews) {
+                subview.layer.transform = CATransform3DIdentity;
+            }
+        }];
 }
 
 #pragma mark - Touch handling
@@ -342,7 +344,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 @end
 
-#pragma mark - UIView+KLParallaxView category
+#pragma mark - UIImageView+KLParallaxView category
 
 @implementation UIView (KLParallaxView)
 
