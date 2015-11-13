@@ -114,6 +114,18 @@ static NSString *const kGlowImageName = @"gloweffect";
     return self.layer.shadowOpacity;
 }
 
+#pragma mark - _shadowColor accessors
+
+- (void)setShadowColor:(UIColor *)shadowColor
+{
+    self.layer.shadowColor = shadowColor.CGColor;
+}
+
+- (UIColor *)shadowColor
+{
+    return [UIColor colorWithCGColor:self.layer.shadowColor];
+}
+
 #pragma mark - _zoomed accessors
 
 - (void)setZoomed:(BOOL)zoomed

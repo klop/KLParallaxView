@@ -35,6 +35,7 @@ typedef NS_ENUM(NSInteger, KLParallaxViewType){
 @property (nonatomic) CGFloat initialShadowRadius;
 @property (nonatomic) CGFloat finalShadowRadius;
 @property (nonatomic) CGFloat shadowOpacity;
+@property (strong, nonatomic) UIColor *shadowColor;
 
 @end
 
