@@ -12,7 +12,7 @@
 static CGFloat const kInitialParallaxOffset = 5.0;
 static CGFloat const kInitialZoomMultiplier = 0.02;
 static CGFloat const kInitialParallaxOffsetDuringPick = 15.0;
-static CGFloat const kInitialParallaxMultiplier = 10.0;
+static CGFloat const kInitialParallaxMultiplier = 1.0;
 static CGFloat const kInitialShadowRadius = 10.0;
 static CGFloat const kFinalShadowRadius = 20.0;
 static NSString *const kGlowImageName = @"gloweffect";
@@ -49,7 +49,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
         self.backgroundColor = [UIColor clearColor];
         self.layer.shadowRadius = _initialShadowRadius;
-        self.layer.shadowOpacity = 0.6;
+        self.layer.shadowOpacity = 0.8;
         self.layer.shadowColor = [UIColor blackColor].CGColor;
 
         UIBezierPath *path = [UIBezierPath new];
@@ -71,8 +71,7 @@ static NSString *const kGlowImageName = @"gloweffect";
             frame.origin.y = -kInitialParallaxOffset * 2.5;
             frame.size.width += kInitialParallaxOffset * 5.0;
             frame.size.height += kInitialParallaxOffset * 5.0;
-            //            subview.translatesAutoresizingMaskIntoConstraints = YES;
-            //            subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+            subview.translatesAutoresizingMaskIntoConstraints = YES;
             subview.frame = frame;
             [_contentView addSubview:subview];
         }
@@ -112,14 +111,14 @@ static NSString *const kGlowImageName = @"gloweffect";
 - (void)animatePick
 {
     [self createShadow];
-//    if (!self.isZoomed) [self makeZoomInEffect];
+    if (!self.isZoomed) [self makeZoomInEffect];
     self.zoomed = YES;
 }
 
 - (void)animatePutDown
 {
     [self removeShadow];
-//    if (self.isZoomed) [self makeZoomOutEffect];
+    if (self.isZoomed) [self makeZoomOutEffect];
     self.zoomed = NO;
 }
 
@@ -171,13 +170,12 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)makeZoomInEffect
 {
-    [UIView animateWithDuration:0.3 animations:^{
+    [UIView animateWithDuration:0.05 animations:^{
         for (UIView *subview in self.contentView.subviews) {
             CGFloat widthZoom = [self widthZoomForView:subview];
             CGFloat heightZoom = [self heightZoomForView:subview];
             subview.center = CGPointMake(subview.center.x - widthZoom,
                                          subview.center.y - heightZoom);
-
             CGRect frame = subview.frame;
             frame.size = CGSizeMake(frame.size.width + widthZoom * 2,
                                     frame.size.height + heightZoom * 2);
@@ -189,7 +187,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (void)makeZoomOutEffect
 {
-    [UIView animateWithDuration:0.5 animations:^{
+    [UIView animateWithDuration:0.1 animations:^{
         for (UIView *subview in self.contentView.subviews) {
             CGFloat widthZoom = [self widthZoomForView:subview];
             CGFloat heightZoom = [self heightZoomForView:subview];
@@ -235,6 +233,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     CGFloat xAngle = (offsetX * kInitialParallaxOffsetDuringPick) * radiansPerDegree;
     CGFloat yAngle = (offsetY * kInitialParallaxOffsetDuringPick) * radiansPerDegree;
 
+
     transform = CATransform3DRotate(transform, xAngle, 0, -(0.5 - offsetY), 0);
     transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
 
@@ -242,31 +241,35 @@ static NSString *const kGlowImageName = @"gloweffect";
     CGFloat currentScale = [[presentationLayer valueForKeyPath: @"transform.scale"] floatValue];
 
     if (currentScale < 1.1) {
-        CABasicAnimation *transformAnim = [CABasicAnimation animationWithKeyPath:@"transform"];
-        transformAnim.fromValue = [NSValue valueWithCATransform3D:presentationLayer.transform];
-        transformAnim.toValue = [NSValue valueWithCATransform3D:transform];
-        transformAnim.duration = 0.1;
-        [self.layer addAnimation:transformAnim forKey:@"transform"];
+        CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
+        animation.fromValue = [NSValue valueWithCATransform3D:presentationLayer.transform];
+        animation.toValue = [NSValue valueWithCATransform3D:transform];
+        animation.duration = 0.1;
+        [self.layer addAnimation:animation forKey:@"transform"];
     }
 
     self.layer.transform = transform;
-
-
-    //    self.layer.transform = CATransform3DRotate(transform, yAngle, (0.5 - offsetY) * 2, 0, 0);
-
-//        [self parallaxSubviewsForOffset:CGPointMake(offsetX, offsetY)];
+    [self parallaxSubviewsForOffset:CGPointMake(offsetX, offsetY)];
 }
 
 - (void)parallaxSubviewsForOffset:(CGPoint)offset
 {
     CGFloat parallaxOffset;
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
     for (UIView *subview in self.contentView.subviews) {
         parallaxOffset = [self parallaxOffsetForView:subview];
         CGFloat xParallaxOffsetAndSuperviewOffset = offset.x * parallaxOffset;
         CGFloat yParallaxOffsetAndSuperviewOffset = offset.y * parallaxOffset;
-        subview.layer.transform = CATransform3DMakeTranslation(xParallaxOffsetAndSuperviewOffset,
+        CATransform3D transform = CATransform3DMakeTranslation(xParallaxOffsetAndSuperviewOffset,
                                                                yParallaxOffsetAndSuperviewOffset,
                                                                0);
+
+        CALayer *presentationLayer = (CALayer *)subview.layer;
+        animation.fromValue = [NSValue valueWithCATransform3D:presentationLayer.transform];
+        animation.toValue = [NSValue valueWithCATransform3D:transform];
+        animation.duration = 0.05;
+        [subview.layer addAnimation:animation forKey:@"transform"];
+        subview.layer.transform = transform;
     }
 }
 
@@ -303,16 +306,11 @@ static NSString *const kGlowImageName = @"gloweffect";
     CALayer *presentationLayer = (CALayer *)self.layer.presentationLayer;
     animation.fromValue = [NSValue valueWithCATransform3D:presentationLayer.transform];
     animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-    animation.duration = 0.4;
+    animation.duration = 0.25;
     [self.layer addAnimation:animation forKey:@"transform"];
     self.layer.transform = CATransform3DIdentity;
 
         [UIView animateWithDuration:0.5 animations:^{
-            CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform"];
-            animation.toValue = [NSValue valueWithCATransform3D:CATransform3DIdentity];
-            animation.duration = 1.0;
-            [self.layer addAnimation:animation forKey:nil];
-    //        self.layer.transform = CATransform3DIdentity;
             for (UIView *subview in self.contentView.subviews) {
                 subview.layer.transform = CATransform3DIdentity;
             }
