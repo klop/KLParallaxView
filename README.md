@@ -13,10 +13,7 @@ KLParallaxView is an Objective-C `UIView` subclass that imitates [Apple TV's par
 
 @interface ViewController ()
 
-@property (strong, nonatomic) UISegmentedControl *segmentedControl;
-@property (strong, nonatomic) NSArray<UIImageView *> *interstellar;
-@property (strong, nonatomic) NSArray<UIImageView *> *spectre;
-@property (nonatomic) CGRect parallaxFrame;
+@property (strong, nonatomic) KLParallaxView *parallaxView;
 
 @end
 
@@ -33,6 +30,8 @@ KLParallaxView is an Objective-C `UIView` subclass that imitates [Apple TV's par
     imageView3.tag = 2;
     NSArray *subviews = @[ imageView1, imageView2, imageView3 ];
     
-    KLParallaxView *parallaxView = [[KLParallaxView alloc] initWithFrame:self.view.bounds subviews:subviews];
+    self.parallaxView = [[KLParallaxView alloc] initWithFrame:self.view.bounds subviews:subviews];
     [self.view addSubview:parallaxView];
-  }
+}
+```
+
