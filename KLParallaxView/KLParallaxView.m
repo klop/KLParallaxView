@@ -10,7 +10,7 @@
 #import <objc/runtime.h>
 
 static CGFloat const kInitialParallaxOffset = 5.0;
-static CGFloat const kInitialZoomMultiplier = 1.5;
+static CGFloat const kInitialZoomMultiplier = 1.05;
 static CGFloat const kInitialParallaxOffsetDuringPick = 15.0;
 static CGFloat const kInitialParallaxMultiplier = 2.0;
 static CGFloat const kInitialShadowOpacity = 0.8;
@@ -215,7 +215,7 @@ static NSString *const kGlowImageName = @"gloweffect";
         CATransform3D transform = CATransform3DMakeTranslation(xParallaxOffsetAndSuperviewOffset,
                                                                yParallaxOffsetAndSuperviewOffset,
                                                                0);
-        transform = CATransform3DScale(transform, 1.05, 1.05, 1.0);
+        transform = CATransform3DScale(transform, self.zoomMultiplier, self.zoomMultiplier, 1.0);
         CALayer *presentationLayer = (CALayer *)subview.layer;
         animation.fromValue = [NSValue valueWithCATransform3D:presentationLayer.transform];
         animation.toValue = [NSValue valueWithCATransform3D:transform];
@@ -227,28 +227,11 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (CGFloat)parallaxOffsetForView:(UIView *)view
 {
-    switch (self.parallaxType) {
-        case KLParallaxViewTypeHierachy: {
-            if (view.superview.subviews.count) {
-                CGFloat index = [view.superview.subviews indexOfObject:view];
-                return index * self.parallaxMultiplier;
-            } else {
-                return 0.0;
-            }
-            break;
-        }
-
-        case KLParallaxViewTypeTag:
-            return (CGFloat)view.tag * self.parallaxMultiplier;
-            break;
-
-        case KLParallaxViewTypeIntensityValue:
-            return view.parallaxIntensity * self.parallaxMultiplier;
-            break;
-
-        default:
-            return 0.0;
-            break;
+    if (!self.basedOnHierachy) {
+        return (CGFloat)view.tag * self.parallaxMultiplier;
+    } else {
+        CGFloat index = [view.superview.subviews indexOfObject:view];
+        return index * self.parallaxMultiplier;
     }
 }
 
@@ -271,6 +254,26 @@ static NSString *const kGlowImageName = @"gloweffect";
     }
 }
 
+#pragma mark - Glow effect
+
+- (void)glowEffectAtPoint:(CGPoint)point
+{
+    CGFloat delta = 0.05;
+    if (point.y > self.bounds.size.height / 2) {
+        self.glowEffect.center = point;
+        [self applyGlowAlpha:self.glowEffect.alpha + delta];
+    } else {
+        [self applyGlowAlpha:self.glowEffect.alpha - delta];
+    }
+}
+
+- (void)applyGlowAlpha:(CGFloat)alpha
+{
+    if (alpha < 1.0 && alpha > 0.0) {
+        self.glowEffect.alpha = alpha;
+    }
+}
+
 #pragma mark - Start/stop animations
 
 - (void)startAnimationsWithTouch:(UITouch *)touch
@@ -278,6 +281,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     CGPoint point = [touch locationInView:self.superview];
     [self createShadow];
     [self parallaxEffectAtPoint:point];
+    [self glowEffectAtPoint:point];
 }
 
 - (void)endAnimations
@@ -304,31 +308,6 @@ static NSString *const kGlowImageName = @"gloweffect";
 {
     [super touchesEnded:touches withEvent:event];
     [self endAnimations];
-}
-
-@end
-
-#pragma mark - UIImageView+KLParallaxView category
-
-@implementation UIView (KLParallaxView)
-
-- (void)setParallaxIntensity:(CGFloat)parallaxIntensity
-{
-    objc_setAssociatedObject(self, @selector(parallaxIntensity),
-                             [NSNumber numberWithFloat:parallaxIntensity],
-                             OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (CGFloat)parallaxIntensity
-{
-    NSNumber *number = objc_getAssociatedObject(self, @selector(parallaxIntensity));
-    if (!number) {
-        number = [NSNumber numberWithFloat:0];
-        objc_setAssociatedObject(self, @selector(parallaxIntensity),
-                                 number,
-                                 OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    }
-    return [number floatValue];
 }
 
 @end

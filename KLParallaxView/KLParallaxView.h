@@ -9,12 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-typedef NS_ENUM(NSInteger, KLParallaxViewType){
-    KLParallaxViewTypeHierachy,
-    KLParallaxViewTypeTag,
-    KLParallaxViewTypeIntensityValue,
-};
-
 @interface KLParallaxView : UIView
 
 /**
@@ -28,19 +22,13 @@ typedef NS_ENUM(NSInteger, KLParallaxViewType){
  */
 - (instancetype)initWithFrame:(CGRect)frame subviews:(NSArray *)subviews;
 
-@property (nonatomic) KLParallaxViewType parallaxType;
 @property (nonatomic) CGFloat cornerRadius;
 @property (nonatomic) CGFloat parallaxMultiplier;
 @property (nonatomic) CGFloat zoomMultiplier;
 @property (nonatomic) CGFloat initialShadowRadius;
 @property (nonatomic) CGFloat finalShadowRadius;
 @property (nonatomic) CGFloat shadowOpacity;
+@property (nonatomic, getter=isBasedOnHierachy) BOOL basedOnHierachy;
 @property (strong, nonatomic) UIColor *shadowColor;
-
-@end
-
-@interface UIView (KLParallaxView)
-
-@property (nonatomic) CGFloat parallaxIntensity;
 
 @end
