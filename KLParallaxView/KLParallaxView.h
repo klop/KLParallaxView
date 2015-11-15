@@ -29,8 +29,9 @@
 @property (nonatomic) CGFloat finalShadowRadius;
 @property (nonatomic) CGFloat shadowOpacity;
 @property (nonatomic, getter=isBasedOnHierachy) BOOL basedOnHierachy;
-@property (nonatomic) BOOL glows;
 @property (strong, nonatomic) UIColor *shadowColor;
 @property (strong, nonatomic) UIColor *glowColor;
+@property (nonatomic) BOOL glows;
+
 
 @end

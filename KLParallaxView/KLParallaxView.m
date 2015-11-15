@@ -7,12 +7,11 @@
 //
 
 #import "KLParallaxView.h"
-#import <objc/runtime.h>
 
-static CGFloat const kInitialParallaxOffset = 5.0;
+static CGFloat const kInitialParallaxOffset = 15.0;
 static CGFloat const kInitialZoomMultiplier = 1.05;
 static CGFloat const kInitialParallaxOffsetDuringPick = 15.0;
-static CGFloat const kInitialParallaxMultiplier = 2.0;
+static CGFloat const kInitialParallaxMultiplier = 1.0;
 static CGFloat const kInitialShadowOpacity = 0.8;
 static CGFloat const kInitialShadowRadius = 10.0;
 static CGFloat const kFinalShadowRadius = 20.0;
@@ -27,15 +26,7 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 @implementation KLParallaxView
 
-- (instancetype)init
-{
-    return [self initWithFrame:CGRectZero];
-}
-
-- (instancetype)initWithFrame:(CGRect)frame
-{
-    return [self initWithFrame:frame subviews:nil];
-}
+#pragma mark - Init
 
 - (instancetype)initWithFrame:(CGRect)frame subviews:(NSArray *)subviews
 {
@@ -62,16 +53,17 @@ static NSString *const kGlowImageName = @"gloweffect";
         [path closePath];
         self.layer.shadowPath = path.CGPath;
 
-        _contentView.frame = self.bounds;
+        _contentView.frame = frame;
         _contentView.layer.masksToBounds = YES;
+        _contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        _contentView.translatesAutoresizingMaskIntoConstraints = YES;
 
         for (UIView *subview in subviews) {
-            subview.frame = self.bounds;
             CGRect frame = subview.frame;
-            frame.origin.x = -kInitialParallaxOffset * 3.0;
-            frame.origin.y = -kInitialParallaxOffset * 3.0;
-            frame.size.width += kInitialParallaxOffset * 6.0;
-            frame.size.height += kInitialParallaxOffset * 6.0;
+            frame.origin.x -= kInitialParallaxOffset;
+            frame.origin.y -= kInitialParallaxOffset;
+            frame.size.width += kInitialParallaxOffset * 2.0;
+            frame.size.height += kInitialParallaxOffset * 2.0;
             subview.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
             subview.translatesAutoresizingMaskIntoConstraints = YES;
             subview.frame = frame;
@@ -82,6 +74,7 @@ static NSString *const kGlowImageName = @"gloweffect";
         _glowEffect.image = [_glowEffect.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         _glowEffect.tintColor = [UIColor whiteColor];
         _glowEffect.alpha = 0.0;
+        _glowEffect.layer.zPosition = MAXFLOAT;
         [_contentView addSubview:_glowEffect];
 
         [self addSubview:_contentView];
@@ -191,11 +184,12 @@ static NSString *const kGlowImageName = @"gloweffect";
 
 - (CGFloat)parallaxOffsetForView:(UIView *)view
 {
+    CGFloat secondaryMultiplier = 2.0;
     if (!self.basedOnHierachy) {
-        return (CGFloat)view.tag * self.parallaxMultiplier;
+        return (CGFloat)view.tag * secondaryMultiplier * self.parallaxMultiplier;
     } else {
         CGFloat index = [view.superview.subviews indexOfObject:view];
-        return index * self.parallaxMultiplier;
+        return index * secondaryMultiplier * self.parallaxMultiplier;
     }
 }
 
@@ -274,6 +268,18 @@ static NSString *const kGlowImageName = @"gloweffect";
     [self endAnimations];
 }
 
+#pragma mark - backgroundColor accessors
+
+- (void)setBackgroundColor:(UIColor *)backgroundColor
+{
+    self.contentView.backgroundColor = backgroundColor;
+}
+
+- (UIColor *)backgroundColor
+{
+    return self.contentView.backgroundColor;
+}
+
 #pragma mark - cornerRadius accessors
 
 - (void)setCornerRadius:(CGFloat)cornerRadius
@@ -329,7 +335,5 @@ static NSString *const kGlowImageName = @"gloweffect";
     _glows = glows;
     self.glowEffect.hidden = !glows;
 }
-
-
 
 @end
