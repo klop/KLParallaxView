@@ -41,11 +41,12 @@ static NSString *const kGlowImageName = @"gloweffect";
 {
     if ((self = [super initWithFrame:frame])) {
         _contentView = [UIView new];
-        _glowEffect = [UIImageView new];
         _parallaxMultiplier = kInitialParallaxMultiplier;
         _initialShadowRadius = kInitialShadowRadius;
         _finalShadowRadius = kFinalShadowRadius;
         _zoomMultiplier = kInitialZoomMultiplier;
+        _basedOnHierachy = NO;
+        _glows = YES;
 
         self.backgroundColor = [UIColor clearColor];
         self.layer.shadowRadius = _initialShadowRadius;
@@ -77,19 +78,18 @@ static NSString *const kGlowImageName = @"gloweffect";
             [_contentView addSubview:subview];
         }
 
-        UIImage *glow = [UIImage imageNamed:kGlowImageName];
-        if (glow) {
-            _glowEffect.image = glow;
-            _glowEffect.alpha = 0.0;
-            [_contentView addSubview:_glowEffect];
-        }
+        _glowEffect = [[UIImageView alloc] initWithImage:[UIImage imageNamed:kGlowImageName]];
+        _glowEffect.image = [_glowEffect.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        _glowEffect.tintColor = [UIColor whiteColor];
+        _glowEffect.alpha = 0.0;
+        [_contentView addSubview:_glowEffect];
 
         [self addSubview:_contentView];
     }
     return self;
 }
 
-#pragma mark - _cornerRadius accessors
+#pragma mark - cornerRadius accessors
 
 - (void)setCornerRadius:(CGFloat)cornerRadius
 {
@@ -101,7 +101,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     return self.contentView.layer.cornerRadius;
 }
 
-#pragma mark - _shadowOpacity accessors
+#pragma mark - shadowOpacity accessors
 
 - (void)setShadowOpacity:(CGFloat)shadowOpacity
 {
@@ -113,7 +113,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     return self.layer.shadowOpacity;
 }
 
-#pragma mark - _shadowColor accessors
+#pragma mark - shadowColor accessors
 
 - (void)setShadowColor:(UIColor *)shadowColor
 {
@@ -123,6 +123,26 @@ static NSString *const kGlowImageName = @"gloweffect";
 - (UIColor *)shadowColor
 {
     return [UIColor colorWithCGColor:self.layer.shadowColor];
+}
+
+#pragma mark - glowColor accessors
+
+- (void)setGlowColor:(UIColor *)glowColor
+{
+    self.glowEffect.tintColor = glowColor;
+}
+
+- (UIColor *)glowColor
+{
+    return self.glowEffect.tintColor;
+}
+
+#pragma mark - glows accessors
+
+- (void)setGlows:(BOOL)glows
+{
+    _glows = glows;
+    self.glowEffect.hidden = !glows;
 }
 
 #pragma mark - Shadow animations
@@ -281,7 +301,7 @@ static NSString *const kGlowImageName = @"gloweffect";
     CGPoint point = [touch locationInView:self.superview];
     [self createShadow];
     [self parallaxEffectAtPoint:point];
-    [self glowEffectAtPoint:point];
+    if (self.glows) [self glowEffectAtPoint:point];
 }
 
 - (void)endAnimations

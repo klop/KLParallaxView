@@ -16,7 +16,7 @@
  *
  *  @param frame    Frame of the view.
  *  @param subviews An array of views. The strength of the parallax effect on each view is determined by
- *  its parallaxIntensity, its position in the view hierachy, or its tag, depending on the parallax view type.
+ *  its tag property or position in the view hierachy if basedOnHierchy is YES.
  *
  *  @return An KLParallaxView instance.
  */
@@ -29,6 +29,8 @@
 @property (nonatomic) CGFloat finalShadowRadius;
 @property (nonatomic) CGFloat shadowOpacity;
 @property (nonatomic, getter=isBasedOnHierachy) BOOL basedOnHierachy;
+@property (nonatomic) BOOL glows;
 @property (strong, nonatomic) UIColor *shadowColor;
+@property (strong, nonatomic) UIColor *glowColor;
 
 @end
