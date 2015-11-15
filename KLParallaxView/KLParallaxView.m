@@ -89,62 +89,6 @@ static NSString *const kGlowImageName = @"gloweffect";
     return self;
 }
 
-#pragma mark - cornerRadius accessors
-
-- (void)setCornerRadius:(CGFloat)cornerRadius
-{
-    self.contentView.layer.cornerRadius = cornerRadius;
-}
-
-- (CGFloat)cornerRadius
-{
-    return self.contentView.layer.cornerRadius;
-}
-
-#pragma mark - shadowOpacity accessors
-
-- (void)setShadowOpacity:(CGFloat)shadowOpacity
-{
-    self.layer.shadowOpacity = shadowOpacity;
-}
-
-- (CGFloat)shadowOpacity
-{
-    return self.layer.shadowOpacity;
-}
-
-#pragma mark - shadowColor accessors
-
-- (void)setShadowColor:(UIColor *)shadowColor
-{
-    self.layer.shadowColor = shadowColor.CGColor;
-}
-
-- (UIColor *)shadowColor
-{
-    return [UIColor colorWithCGColor:self.layer.shadowColor];
-}
-
-#pragma mark - glowColor accessors
-
-- (void)setGlowColor:(UIColor *)glowColor
-{
-    self.glowEffect.tintColor = glowColor;
-}
-
-- (UIColor *)glowColor
-{
-    return self.glowEffect.tintColor;
-}
-
-#pragma mark - glows accessors
-
-- (void)setGlows:(BOOL)glows
-{
-    _glows = glows;
-    self.glowEffect.hidden = !glows;
-}
-
 #pragma mark - Shadow animations
 
 - (void)createShadow
@@ -329,5 +273,63 @@ static NSString *const kGlowImageName = @"gloweffect";
     [super touchesEnded:touches withEvent:event];
     [self endAnimations];
 }
+
+#pragma mark - cornerRadius accessors
+
+- (void)setCornerRadius:(CGFloat)cornerRadius
+{
+    self.contentView.layer.cornerRadius = cornerRadius;
+}
+
+- (CGFloat)cornerRadius
+{
+    return self.contentView.layer.cornerRadius;
+}
+
+#pragma mark - shadowOpacity accessors
+
+- (void)setShadowOpacity:(CGFloat)shadowOpacity
+{
+    self.layer.shadowOpacity = shadowOpacity;
+}
+
+- (CGFloat)shadowOpacity
+{
+    return self.layer.shadowOpacity;
+}
+
+#pragma mark - shadowColor accessors
+
+- (void)setShadowColor:(UIColor *)shadowColor
+{
+    self.layer.shadowColor = shadowColor.CGColor;
+}
+
+- (UIColor *)shadowColor
+{
+    return [UIColor colorWithCGColor:self.layer.shadowColor];
+}
+
+#pragma mark - glowColor accessors
+
+- (void)setGlowColor:(UIColor *)glowColor
+{
+    self.glowEffect.tintColor = glowColor;
+}
+
+- (UIColor *)glowColor
+{
+    return self.glowEffect.tintColor;
+}
+
+#pragma mark - glows accessors
+
+- (void)setGlows:(BOOL)glows
+{
+    _glows = glows;
+    self.glowEffect.hidden = !glows;
+}
+
+
 
 @end
