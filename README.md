@@ -40,6 +40,20 @@
 
 ## Configuration
 
+### Parallax settings
+
+Use the subviews' positions in the view hierachy rather than their `tag` property.
+```Objective-C
+self.parallaxView.basedOnHierachy = YES;
+```
+Multiply the parallax effect on all views by a given factor.
+```Objective-C
+self.parallaxView.parallaxMultiplier = YES;
+```
+Multiply the zoom effect on all views by a given factor.
+```Objective-C
+self.parallaxView.zoomMultiplier = YES;
+```
 ### Glow settings
 
 Toggle the glowing effect that follows touches.
@@ -66,23 +80,8 @@ self.parallaxView.finalShadowRadius = 9.5;
 ```
 Change the color of the shadow.
 ```Objective-C
-self.parallaxView. = [UIColor cerulean];
+self.parallaxView.shadowColor = [UIColor cerulean];
 ```
-### Parallax settings
-
-Use the subviews' positions in the view hierachy rather than their `tag` property.
-```Objective-C
-self.parallaxView.basedOnHierachy = YES;
-```
-Multiply the parallax effect on all views by a given factor.
-```Objective-C
-self.parallaxView.parallaxMultiplier = YES;
-```
-Multiply the zoom effect on all views by a given factor.
-```Objective-C
-self.parallaxView.zoomMultiplier = YES;
-```
-
 ### Other
 
 Set the view's corner radius.
