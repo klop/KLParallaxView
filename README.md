@@ -4,6 +4,16 @@
 
 ![KLParallaxView](http://i.imgur.com/W6uH4Bt.gif)
 
+## Installation
+
+`KLParallaxView` is available through CocoaPods. To install it, simply add the following line to your Podfile:
+```
+pod "KLParallaxView"
+```
+## Example Project
+
+To run the example project, clone the repo, and run `pod install` from the Example directory, or alternatively run `pod try "KLParallaxView"` and run the example target.
+
 ## Usage
 
 `KLParallaxView` is initialized with an array of subviews whose ordering reflects their positioning in a view hierachy i.e. `firstObject` is the bottommost view while `lastObject` is the topmost. By default, `KLParallaxView` controls each subview's movement during the parallax effect by the value of their `tag` property.
