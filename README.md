@@ -52,6 +52,10 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ### Parallax settings
 
+Set a subview's tag to control how much it moves.
+```Objective-C
+subview.tag = 3.0;
+```
 Use the subviews' positions in the view hierachy rather than their `tag` property.
 ```Objective-C
 self.parallaxView.basedOnHierachy = YES;
