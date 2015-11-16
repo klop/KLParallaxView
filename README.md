@@ -44,7 +44,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
     NSArray *subviews = @[ imageView1, imageView2, imageView3 ];
     
     self.parallaxView = [[KLParallaxView alloc] initWithFrame:self.view.bounds subviews:subviews];
-    [self.view addSubview:parallaxView];
+    [self.view addSubview:self.parallaxView];
 }
 ```
 
