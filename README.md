@@ -52,7 +52,7 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ### Parallax settings
 
-Set a subview's tag to control how much it moves.
+Set a subview's `tag` to control how much it moves.
 ```Objective-C
 UIImageView *subview = ...
 subview.tag = 3.0;
