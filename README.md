@@ -101,3 +101,7 @@ self.parallaxView.cornerRadius = 5.0;
 ## Assets
 
 Taken from [MPParallaxView](https://github.com/DroidsOnRoids/MPParallaxView): Thanks [Konstantine Trundayev](https://dribbble.com/k0t) for Interstellar assets!
+
+## License
+
+KLParallaxView is available under the MIT license. See the LICENSE file for more info.
