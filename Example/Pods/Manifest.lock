@@ -1,0 +1,14 @@
+PODS:
+  - KLParallaxView (0.1.0)
+
+DEPENDENCIES:
+  - KLParallaxView (from `../`)
+
+EXTERNAL SOURCES:
+  KLParallaxView:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  KLParallaxView: 5f98cdcd98b333d610ec77af55aae6e8f642b056
+
+COCOAPODS: 0.39.0

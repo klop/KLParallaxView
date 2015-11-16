@@ -12,7 +12,7 @@
 @interface KLParallaxView : UIView
 
 /**
- *  The designated initializer for KLParallaxView.
+ *  The initializer for KLParallaxView.
  *
  *  @param frame    Frame of the view.
  *  @param subviews An array of views. The strength of the parallax effect on each view is determined by

@@ -70,7 +70,10 @@ static NSString *const kGlowImageName = @"gloweffect";
             [_contentView addSubview:subview];
         }
 
-        _glowEffect = [[UIImageView alloc] initWithImage:[UIImage imageNamed:kGlowImageName]];
+        NSString *bundlePath = [[NSBundle bundleForClass:[self class]] pathForResource:nil ofType:@"bundle"];
+        NSBundle *bundle = [NSBundle bundleWithPath:bundlePath];
+        UIImage *glowImage = [UIImage imageNamed:kGlowImageName inBundle:bundle compatibleWithTraitCollection:nil];
+        _glowEffect = [[UIImageView alloc] initWithImage:glowImage];
         _glowEffect.image = [_glowEffect.image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         _glowEffect.tintColor = [UIColor whiteColor];
         _glowEffect.alpha = 0.0;
