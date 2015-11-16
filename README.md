@@ -58,11 +58,11 @@ self.parallaxView.basedOnHierachy = YES;
 ```
 Multiply the parallax effect on all views by a given factor.
 ```Objective-C
-self.parallaxView.parallaxMultiplier = YES;
+self.parallaxView.parallaxMultiplier = 2.5;
 ```
 Multiply the zoom effect on all views by a given factor.
 ```Objective-C
-self.parallaxView.zoomMultiplier = YES;
+self.parallaxView.zoomMultiplier = 1.5;
 ```
 ### Glow settings
 
