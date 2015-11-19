@@ -12,7 +12,7 @@ pod "KLParallaxView"
 ```
 ## Example Project
 
-To run the example project, clone the repo, and run `pod install` from the Example directory, or alternatively run `pod try "KLParallaxView"` and run the example target.
+To run the example project, clone the repo and use the workspace in the Example directory, or alternatively run `pod try "KLParallaxView"` and run the example target.
 
 ## Usage
 
