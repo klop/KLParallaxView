@@ -55,7 +55,7 @@ To run the example project, clone the repo and use the workspace in the Example 
 Set a subview's `tag` to control how much it moves.
 ```Objective-C
 UIImageView *subview = ...
-subview.tag = 3.0;
+subview.tag = 3;
 ```
 Use the subviews' positions in the view hierachy rather than their `tag` property.
 ```Objective-C
