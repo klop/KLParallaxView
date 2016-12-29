@@ -16,7 +16,7 @@ To run the example project, clone the repo and use the workspace in the Example 
 
 ## Usage
 
-`KLParallaxView` is initialized with an array of subviews whose ordering reflects their positioning in a view hierachy i.e. `firstObject` is the bottommost view while `lastObject` is the topmost. By default, `KLParallaxView` controls each subview's movement during the parallax effect by the value of their `tag` property.
+`KLParallaxView` is initialized with an array of subviews whose ordering reflects their positioning in a view hierarchy i.e. `firstObject` is the bottommost view while `lastObject` is the topmost. By default, `KLParallaxView` controls each subview's movement during the parallax effect by the value of their `tag` property.
 
 ```Objective-C
 
@@ -101,7 +101,7 @@ self.parallaxView.shadowColor = [UIColor cerulean];
 
 Set the view's corner radius.
 ```Objective-C
-self.parallaxView.cornerRadius = 5.0;
+self.parallaxView.cornerRadius = 5;
 ```
 ## Assets
 
